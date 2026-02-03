@@ -1,0 +1,11 @@
+name: phase1-todo
+version: "1.0"
+
+structure:
+  specs_dir: specs
+  features_dir: specs/features
+
+phases:
+  - name: phase1-console
+    features:
+      - task-crud
