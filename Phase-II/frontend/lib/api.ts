@@ -1,6 +1,6 @@
 // API utility functions for the Todo App
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+// Using internal API routes for Vercel compatibility
+const API_BASE_URL = '';
 
 interface ApiOptions {
   method?: string;
@@ -16,7 +16,8 @@ class ApiClient {
   }
 
   async request<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    // For internal API routes, don't prepend baseUrl
+    let url = endpoint.startsWith('/api/') ? endpoint : `${this.baseUrl}${endpoint}`;
 
     const defaultHeaders = {
       'Content-Type': 'application/json',
@@ -66,66 +67,85 @@ class ApiClient {
 
   // Authentication methods
   async login(email: string, password: string) {
-    // In a real app, this would be an API call to the backend
-    // For now, we'll simulate a login and return a mock JWT token
-    // The backend expects a JWT with a "sub" field containing the user ID
-    const mockUserId = email.replace(/[^\w]/g, '_'); // Create a safe user ID from email
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({
-      sub: mockUserId,
-      exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour expiry
-      iat: Math.floor(Date.now() / 1000) // issued at time
-    }));
-    const token = `${header}.${payload}.mock-signature`;
+    // Call the internal API route that proxies to the backend
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-    localStorage.setItem('authToken', token);
-    return { token };
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(errorData);
+    }
+
+    const data = await response.json();
+    // Store the actual token from the backend response
+    if (data.token) {
+      localStorage.setItem('authToken', data.token);
+    }
+    return data;
   }
 
   async register(email: string, password: string) {
-    // In a real app, this would be an API call to the backend
-    // For now, we'll simulate registration
-    return { success: true };
+    // Call the internal API route that proxies to the backend
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(errorData);
+    }
+
+    return await response.json();
   }
 
   // Task methods
   async getTasks(): Promise<any[]> {
-    return this.request('/tasks');
+    return this.request('/api/tasks');
   }
 
   async getTask(id: number): Promise<any> {
-    return this.request(`/tasks/${id}`);
+    return this.request(`/api/tasks/${id}`);
   }
 
   async createTask(taskData: any): Promise<any> {
-    return this.request('/tasks', {
+    return this.request('/api/tasks', {
       method: 'POST',
       body: JSON.stringify(taskData),
     });
   }
 
   async updateTask(id: number, taskData: any): Promise<any> {
-    return this.request(`/tasks/${id}`, {
+    return this.request(`/api/tasks/${id}`, {
       method: 'PUT',
       body: JSON.stringify(taskData),
     });
   }
 
   async deleteTask(id: number): Promise<void> {
-    await this.request(`/tasks/${id}`, {
+    await this.request(`/api/tasks/${id}`, {
       method: 'DELETE',
     });
   }
 
   async toggleTaskCompletion(id: number): Promise<any> {
-    return this.request(`/tasks/${id}/toggle-complete`, {
+    return this.request(`/api/tasks/${id}`, {
       method: 'PATCH',
+      body: JSON.stringify({ toggleComplete: true }),
     });
   }
 
   // Chat methods
   async chat(message: string, conversationId?: number): Promise<any> {
-    return this.request('/chat', {
+    return this.request('/api/chat', {
       method: 'POST',
       body: JSON.stringify({ message, conversation_id: conversationId }),
     });
