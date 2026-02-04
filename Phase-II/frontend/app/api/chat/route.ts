@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    const authHeader = request.headers.get('authorization');
+const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : authHeader;
     const body = await request.json();
 
     // Forward the chat request to the backend
