@@ -1,6 +1,6 @@
 // API utility functions for the Todo App
 // Using internal API routes for Vercel compatibility
-const API_BASE_URL = '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 interface ApiOptions {
   method?: string;
