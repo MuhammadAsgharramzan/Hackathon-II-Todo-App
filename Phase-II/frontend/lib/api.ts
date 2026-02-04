@@ -83,8 +83,9 @@ class ApiClient {
 
     const data = await response.json();
     // Store the actual token from the backend response
-    if (data.token) {
-      localStorage.setItem('authToken', data.token);
+    // The backend returns access_token field
+    if (data.access_token) {
+      localStorage.setItem('authToken', data.access_token);
     }
     return data;
   }

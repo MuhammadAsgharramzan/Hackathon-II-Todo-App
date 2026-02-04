@@ -19,9 +19,7 @@ export default function LoginPage() {
       // For now, we'll simulate authentication and redirect
       const response = await apiClient.login(email, password);
 
-      // Store token (in real app, this would come from the backend)
-      localStorage.setItem('authToken', response.token);
-
+      // The apiClient.login() method already stores the token in localStorage
       // Redirect to tasks page
       router.push('/tasks');
       router.refresh(); // Refresh to update the UI

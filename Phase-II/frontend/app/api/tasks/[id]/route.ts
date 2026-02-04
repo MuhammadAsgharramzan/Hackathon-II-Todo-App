@@ -10,7 +10,7 @@ export async function GET(
   noStore(); // Disable caching for this route
 
   try {
-    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const token = headers().get('authorization')?.replace('Bearer ', '');
     const taskId = params.id;
 
@@ -33,7 +33,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const token = headers().get('authorization')?.replace('Bearer ', '');
     const taskId = params.id;
     const body = await request.json();
@@ -59,7 +59,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const token = headers().get('authorization')?.replace('Bearer ', '');
     const taskId = params.id;
 
@@ -82,7 +82,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const token = headers().get('authorization')?.replace('Bearer ', '');
     const taskId = params.id;
 
