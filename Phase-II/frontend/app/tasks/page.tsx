@@ -49,7 +49,7 @@ export default function TasksPage() {
     } else {
       fetchTasks();
     }
-  }, []);
+  }, []); // Only run once on mount to prevent infinite redirects
 
   const fetchTasks = async () => {
     try {
@@ -57,8 +57,14 @@ export default function TasksPage() {
       const data = await apiClient.getTasks();
       setTasks(data);
     } catch (err: any) {
-      setError('Failed to load tasks');
-      console.error(err);
+      if (err.message.includes('Unauthorized')) {
+        // If unauthorized, redirect to login
+        localStorage.removeItem('authToken');
+        router.push('/login');
+      } else {
+        setError('Failed to load tasks');
+        console.error(err);
+      }
     } finally {
       setLoading(false);
     }
@@ -69,8 +75,14 @@ export default function TasksPage() {
       const data = await apiClient.createTask(newTask);
       setTasks([...tasks, data]);
     } catch (err: any) {
-      setError('Failed to add task');
-      console.error(err);
+      if (err.message.includes('Unauthorized')) {
+        // If unauthorized, redirect to login
+        localStorage.removeItem('authToken');
+        router.push('/login');
+      } else {
+        setError('Failed to add task');
+        console.error(err);
+      }
     }
   };
 
@@ -83,8 +95,14 @@ export default function TasksPage() {
       });
       setTasks(tasks.map(task => task.id === data.id ? data : task));
     } catch (err: any) {
-      setError('Failed to update task');
-      console.error(err);
+      if (err.message.includes('Unauthorized')) {
+        // If unauthorized, redirect to login
+        localStorage.removeItem('authToken');
+        router.push('/login');
+      } else {
+        setError('Failed to update task');
+        console.error(err);
+      }
     }
   };
 
@@ -93,8 +111,14 @@ export default function TasksPage() {
       const data = await apiClient.toggleTaskCompletion(taskId);
       setTasks(tasks.map(task => task.id === taskId ? data : task));
     } catch (err: any) {
-      setError('Failed to update task status');
-      console.error(err);
+      if (err.message.includes('Unauthorized')) {
+        // If unauthorized, redirect to login
+        localStorage.removeItem('authToken');
+        router.push('/login');
+      } else {
+        setError('Failed to update task status');
+        console.error(err);
+      }
     }
   };
 
@@ -104,8 +128,14 @@ export default function TasksPage() {
         await apiClient.deleteTask(taskId);
         setTasks(tasks.filter(task => task.id !== taskId));
       } catch (err: any) {
-        setError('Failed to delete task');
-        console.error(err);
+        if (err.message.includes('Unauthorized')) {
+          // If unauthorized, redirect to login
+          localStorage.removeItem('authToken');
+          router.push('/login');
+        } else {
+          setError('Failed to delete task');
+          console.error(err);
+        }
       }
     }
   };

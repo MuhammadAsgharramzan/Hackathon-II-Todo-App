@@ -40,10 +40,9 @@ class ApiClient {
     try {
       const response = await fetch(url, config);
 
-      // Handle 401 Unauthorized
+      // Handle 401 Unauthorized - just remove token and throw error for caller to handle
       if (response.status === 401) {
         localStorage.removeItem('authToken');
-        window.location.href = '/login';
         throw new Error('Unauthorized. Please log in again.');
       }
 

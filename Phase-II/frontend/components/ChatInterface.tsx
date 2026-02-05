@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api';
 
 interface Message {
@@ -27,6 +28,7 @@ interface ChatProps {
 }
 
 export default function ChatInterface({ userId }: ChatProps) {
+  const router = useRouter();
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,8 +99,13 @@ export default function ChatInterface({ userId }: ChatProps) {
           setMessages(prev => prev.filter(msg => msg.content !== toolIndicator.content));
         }, 2000);
       }
-    } catch (error) {
-      console.error('Error sending message:', error);
+    } catch (error: any) {
+      if (error.message && error.message.includes('Unauthorized')) {
+        // If unauthorized, redirect to login
+        localStorage.removeItem('authToken');
+        router.push('/login');
+      } else {
+        console.error('Error sending message:', error);
 
       // Add error message to chat
       const errorMessage: Message = {

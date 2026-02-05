@@ -81,21 +81,22 @@ class TodoAgent:
             # Execute the appropriate tool
             result = self._execute_tool(intent, user_id, extracted_params, session)
 
-            if result is not None:
-                tool_call = {
-                    "tool_name": intent,
-                    "arguments": {"user_id": user_id, **extracted_params},
-                    "result": result
-                }
+            # Generate natural language response based on tool result
+            # Even if result is None or has errors, we should generate a response
+            response = self._generate_response_for_tool(intent, result, extracted_params)
 
-                # Log tool execution for audit trail
-                logger.info(f"Tool executed: {intent} for user {user_id} with params {extracted_params}")
+            # Create tool call entry even for errors to track what happened
+            tool_call = {
+                "tool_name": intent,
+                "arguments": {"user_id": user_id, **extracted_params},
+                "result": result
+            }
 
-                tool_calls.append(tool_call)
+            # Log tool execution for audit trail
+            logger.info(f"Tool executed: {intent} for user {user_id} with params {extracted_params}, result: {result}")
 
-                # Generate natural language response based on tool result
-                response = self._generate_response_for_tool(intent, result, extracted_params)
-                return response, tool_calls
+            tool_calls.append(tool_call)
+            return response, tool_calls
 
         # If no intent matched, try to infer from keywords
         response, additional_tool_calls = self._infer_from_keywords(user_id, message, session)
