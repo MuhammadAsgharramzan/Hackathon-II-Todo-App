@@ -79,7 +79,7 @@ class TodoAgent:
 
         if intent and intent in self.tools_map:
             # Execute the appropriate tool
-            result = self._execute_tool(intent, user_id, extracted_params)
+            result = self._execute_tool(intent, user_id, extracted_params, session)
 
             if result is not None:
                 tool_call = {
@@ -98,7 +98,7 @@ class TodoAgent:
                 return response, tool_calls
 
         # If no intent matched, try to infer from keywords
-        response, additional_tool_calls = self._infer_from_keywords(user_id, message)
+        response, additional_tool_calls = self._infer_from_keywords(user_id, message, session)
         tool_calls.extend(additional_tool_calls)
 
         if not tool_calls:
@@ -149,18 +149,22 @@ class TodoAgent:
 
         return None, {}
 
-    def _execute_tool(self, tool_name: str, user_id: str, params: Dict[str, Any]) -> Any:
+    def _execute_tool(self, tool_name: str, user_id: str, params: Dict[str, Any], session: Session = None) -> Any:
         """
         Execute the specified tool with given parameters
         """
         if tool_name not in self.tools_map:
             logger.error(f"Unknown tool requested: {tool_name}")
-            return None
+            return {"error": f"Unknown tool: {tool_name}"}
 
         tool_func = self.tools_map[tool_name]
 
-        # Prepare arguments for the tool
+        # Prepare arguments for the tool - include session if provided
         tool_args = {"user_id": user_id, **params}
+        if session is not None:
+            # If session is provided, we need to modify how tools are called to use the session
+            # For now, just pass the session as an argument and let tools decide whether to use it
+            tool_args['session'] = session
 
         try:
             # Execute the tool
@@ -175,9 +179,10 @@ class TodoAgent:
             return result
         except Exception as e:
             logger.error(f"Error executing tool {tool_name} for user {user_id}: {str(e)}")
-            return None
+            # Return error dict instead of None to surface the actual error
+            return {"error": f"Error executing {tool_name}: {str(e)}"}
 
-    def _infer_from_keywords(self, user_id: str, message: str) -> tuple[str, List[Dict[str, Any]]]:
+    def _infer_from_keywords(self, user_id: str, message: str, session: Session = None) -> tuple[str, List[Dict[str, Any]]]:
         """
         Infer intent from keywords when regex patterns don't match
         """
@@ -193,18 +198,26 @@ class TodoAgent:
             title = cleaned_message.strip()
 
             if title and len(title) > 0:
-                result = TaskTools.add_task(user_id=user_id, title=title)
-                if result:
-                    if isinstance(result, dict) and "error" in result:
-                        # Handle error case
-                        return f"❌ Error: {result['error']}", tool_calls
+                try:
+                    # Pass session if available
+                    if session:
+                        result = TaskTools.add_task(user_id=user_id, title=title, session=session)
                     else:
-                        tool_calls.append({
-                            "tool_name": "add_task",
-                            "arguments": {"user_id": user_id, "title": title},
-                            "result": result
-                        })
-                        return f"✅ Task '{result['title']}' has been added successfully with ID {result['task_id']}.", tool_calls
+                        result = TaskTools.add_task(user_id=user_id, title=title)
+                    if result:
+                        if isinstance(result, dict) and "error" in result:
+                            # Handle error case
+                            return f"❌ Error: {result['error']}", tool_calls
+                        else:
+                            tool_calls.append({
+                                "tool_name": "add_task",
+                                "arguments": {"user_id": user_id, "title": title},
+                                "result": result
+                            })
+                            return f"✅ Task '{result['title']}' has been added successfully with ID {result['task_id']}.", tool_calls
+                except Exception as e:
+                    logger.error(f"Error in keyword-based add_task for user {user_id}: {str(e)}")
+                    return f"❌ Error: Failed to add task: {str(e)}", tool_calls
 
         elif any(word in message_lower for word in ["show", "list", "view", "what", "display", "see", "my"]):
             status = "all"
@@ -213,21 +226,29 @@ class TodoAgent:
             elif "pending" in message_lower or "incomplete" in message_lower or "open" in message_lower or "remaining" in message_lower:
                 status = "pending"
 
-            tasks = TaskTools.list_tasks(user_id=user_id, status=status)
+            try:
+                # Pass session if available
+                if session:
+                    tasks = TaskTools.list_tasks(user_id=user_id, status=status, session=session)
+                else:
+                    tasks = TaskTools.list_tasks(user_id=user_id, status=status)
 
-            tool_calls.append({
-                "tool_name": "list_tasks",
-                "arguments": {"user_id": user_id, "status": status},
-                "result": tasks
-            })
+                tool_calls.append({
+                    "tool_name": "list_tasks",
+                    "arguments": {"user_id": user_id, "status": status},
+                    "result": tasks
+                })
 
-            if tasks:
-                task_list = "\n".join([f"- {'✅' if t['completed'] else '○'} {t['title']} (ID: {t['id']})" for t in tasks])
-                status_text = f" ({status})" if status != "all" else ""
-                return f"Here are your{status_text} tasks:\n{task_list}", tool_calls
-            else:
-                status_text = f" {status}" if status != "all" else ""
-                return f"You don't have any{status_text} tasks at the moment.", tool_calls
+                if tasks:
+                    task_list = "\n".join([f"- {'✅' if t['completed'] else '○'} {t['title']} (ID: {t['id']})" for t in tasks])
+                    status_text = f" ({status})" if status != "all" else ""
+                    return f"Here are your{status_text} tasks:\n{task_list}", tool_calls
+                else:
+                    status_text = f" {status}" if status != "all" else ""
+                    return f"You don't have any{status_text} tasks at the moment.", tool_calls
+            except Exception as e:
+                logger.error(f"Error in keyword-based list_tasks for user {user_id}: {str(e)}")
+                return f"❌ Error: Failed to list tasks: {str(e)}", tool_calls
 
         elif any(word in message_lower for word in ["done", "complete", "finish", "check", "mark"]):
             # Look for task ID in the message
@@ -235,7 +256,11 @@ class TodoAgent:
             if task_id_match:
                 try:
                     task_id = int(task_id_match.group(1))
-                    result = TaskTools.complete_task(user_id=user_id, task_id=task_id)
+                    # Pass session if available
+                    if session:
+                        result = TaskTools.complete_task(user_id=user_id, task_id=task_id, session=session)
+                    else:
+                        result = TaskTools.complete_task(user_id=user_id, task_id=task_id)
                     if result:
                         if isinstance(result, dict) and "error" in result:
                             # Handle error case
@@ -251,6 +276,9 @@ class TodoAgent:
                         return f"❌ Could not find task with ID {task_id}.", tool_calls
                 except ValueError:
                     pass
+                except Exception as e:
+                    logger.error(f"Error in keyword-based complete_task for user {user_id}: {str(e)}")
+                    return f"❌ Error: Failed to complete task: {str(e)}", tool_calls
 
         elif any(word in message_lower for word in ["delete", "remove", "erase", "trash"]):
             # Look for task ID in the message
@@ -258,7 +286,11 @@ class TodoAgent:
             if task_id_match:
                 try:
                     task_id = int(task_id_match.group(1))
-                    result = TaskTools.delete_task(user_id=user_id, task_id=task_id)
+                    # Pass session if available
+                    if session:
+                        result = TaskTools.delete_task(user_id=user_id, task_id=task_id, session=session)
+                    else:
+                        result = TaskTools.delete_task(user_id=user_id, task_id=task_id)
                     if result:
                         if isinstance(result, dict) and "error" in result:
                             # Handle error case
@@ -274,6 +306,9 @@ class TodoAgent:
                         return f"❌ Could not find task with ID {task_id}.", tool_calls
                 except ValueError:
                     pass
+                except Exception as e:
+                    logger.error(f"Error in keyword-based delete_task for user {user_id}: {str(e)}")
+                    return f"❌ Error: Failed to delete task: {str(e)}", tool_calls
 
         return "", []  # No action taken
 
@@ -281,6 +316,10 @@ class TodoAgent:
         """
         Generate a natural language response based on tool execution result
         """
+        # Check if result contains an error
+        if isinstance(result, dict) and "error" in result:
+            return f"❌ Error: {result['error']}"
+
         if result is None:
             if tool_name == "complete_task":
                 return f"❌ I couldn't find a task with that ID. Please check the task ID and try again."
@@ -290,10 +329,6 @@ class TodoAgent:
                 return f"❌ I couldn't find a task with that ID. Please check the task ID and try again."
             else:
                 return f"❌ Sorry, I encountered an issue processing your request."
-
-        # Check if result contains an error
-        if isinstance(result, dict) and "error" in result:
-            return f"❌ Error: {result['error']}"
 
         if tool_name == "add_task":
             return f"✅ Task '{result['title']}' has been added successfully with ID {result['task_id']}."

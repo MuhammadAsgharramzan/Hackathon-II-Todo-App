@@ -12,12 +12,12 @@ export async function GET(
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = headers().get('authorization');
-const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : authHeader;
+const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const taskId = params.id;
 
     const response = await fetch(`${backendUrl}/tasks/${taskId}`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         'Content-Type': 'application/json',
       },
     });
@@ -36,14 +36,14 @@ export async function PUT(
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = headers().get('authorization');
-const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : authHeader;
+const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const taskId = params.id;
     const body = await request.json();
 
     const response = await fetch(`${backendUrl}/tasks/${taskId}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
@@ -63,13 +63,13 @@ export async function DELETE(
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = headers().get('authorization');
-const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : authHeader;
+const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const taskId = params.id;
 
     const response = await fetch(`${backendUrl}/tasks/${taskId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         'Content-Type': 'application/json',
       },
     });
@@ -87,13 +87,13 @@ export async function PATCH(
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = headers().get('authorization');
-const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : authHeader;
+const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const taskId = params.id;
 
     const response = await fetch(`${backendUrl}/tasks/${taskId}/toggle-complete`, {
       method: 'PATCH',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         'Content-Type': 'application/json',
       },
     });
