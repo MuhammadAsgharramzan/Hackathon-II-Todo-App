@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-config
+data:
+  # Python/Backend
+  DATABASE_URL: "postgresql://todo_user:todo_password@postgres:5432/todo_db"
+  PORT: "8000"
+  
+  # Node/Frontend
+  NODE_ENV: "production"
+  # Internal URL for SSR
+  BACKEND_URL: "http://todo-backend:8000"
+  # External URL for Browser (Placeholder - Update with Minikube IP)
+  NEXT_PUBLIC_API_BASE_URL: "http://localhost:8000"

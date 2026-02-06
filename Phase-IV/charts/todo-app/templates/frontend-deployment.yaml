@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-app.fullname" . }}-frontend
+  labels:
+    app: {{ include "todo-app.fullname" . }}-frontend
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "todo-app.fullname" . }}-frontend
+  template:
+    metadata:
+      labels:
+        app: {{ include "todo-app.fullname" . }}-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: {{ include "todo-app.fullname" . }}-config
+        resources:
+          {{- toYaml .Values.frontend.resources | nindent 10 }}

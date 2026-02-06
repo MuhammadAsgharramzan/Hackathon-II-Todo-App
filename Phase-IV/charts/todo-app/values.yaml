@@ -1,0 +1,53 @@
+# Default values for todo-app.
+
+imagePullPolicy: IfNotPresent
+
+backend:
+  replicaCount: 1
+  image:
+    repository: todo-backend
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: todo-frontend
+    tag: latest
+  service:
+    type: NodePort
+    port: 3000
+    nodePort: 30080
+  resources: # Simplified for local minikube
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+postgres:
+  image:
+    repository: postgres
+    tag: 15-alpine
+  storage:
+    size: 1Gi
+  credentials:
+    user: todo_user
+    password: todo_password
+    db: todo_db
+
+jwt:
+  secret: "super-secret-key-change-in-production"
+
+global:
+  environment: production
