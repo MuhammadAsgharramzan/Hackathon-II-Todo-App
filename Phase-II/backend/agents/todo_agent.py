@@ -193,7 +193,7 @@ class TodoAgent:
         # Simple keyword-based inference
         if any(word in message_lower for word in ["add", "create", "remember", "make", "new"]):
             # Try to extract a potential task title
-            import re
+            # Try to extract a potential task title
             # Remove common starting words
             cleaned_message = re.sub(r'^(?:can you |could you |please |pls |add |create |remember |make |i need to |i want to |let me )+', '', message_lower)
             title = cleaned_message.strip()
