@@ -8,6 +8,10 @@ from db.database import create_db_and_tables
 import uvicorn
 import os
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = FastAPI(title="Todo App API", version="1.0.0")
 
@@ -47,4 +51,4 @@ def health_check():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
