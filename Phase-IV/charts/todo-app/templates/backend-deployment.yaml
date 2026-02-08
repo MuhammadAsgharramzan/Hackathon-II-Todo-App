@@ -1,29 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "todo-app.fullname" . }}-backend
+  name: todo-backend
   labels:
-    app: {{ include "todo-app.fullname" . }}-backend
+    app: todo-backend
 spec:
   replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "todo-app.fullname" . }}-backend
+      app: todo-backend
   template:
     metadata:
       labels:
-        app: {{ include "todo-app.fullname" . }}-backend
+        app: todo-backend
     spec:
       containers:
-      - name: backend
+      - name: todo-backend
         image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.backend.service.port }}
         envFrom:
         - configMapRef:
-            name: {{ include "todo-app.fullname" . }}-config
+            name: todo-config
         - secretRef:
-            name: {{ include "todo-app.fullname" . }}-secrets
+            name: todo-secrets
         resources:
-          {{- toYaml .Values.backend.resources | nindent 10 }}
+          requests:
+            memory: {{ .Values.backend.resources.requests.memory }}
+            cpu: {{ .Values.backend.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.backend.resources.limits.memory }}
+            cpu: {{ .Values.backend.resources.limits.cpu }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.backend.readinessProbe.path }}
+            port: {{ .Values.backend.service.port }}
+          initialDelaySeconds: {{ .Values.backend.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.readinessProbe.periodSeconds }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.backend.livenessProbe.path }}
+            port: {{ .Values.backend.service.port }}
+          initialDelaySeconds: {{ .Values.backend.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.backend.livenessProbe.periodSeconds }}

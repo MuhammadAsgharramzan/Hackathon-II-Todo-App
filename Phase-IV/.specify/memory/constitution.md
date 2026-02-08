@@ -1,55 +1,75 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT
+Version change: N/A -> 1.0.0
+Modified principles: None (new constitution)
+Added sections: All sections below
+Removed sections: None
+Templates requiring updates: N/A
+Follow-up TODOs: None
+-->
+# Todo App Hackathon - Phase IV Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Specification-Driven Development (SDD)
+All development follows the strict sequence: Spec → Plan → Tasks → Implementation. No implementation occurs without prior specification. Changes to implementation require specification updates first.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. AI-Assisted DevOps First
+All DevOps operations (containerization, orchestration, deployment) must utilize AI tools (Gordon, kubectl-ai, Kagent) rather than manual configuration. Manual coding of infrastructure is prohibited unless AI tools fail.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-First (NON-NEGOTIABLE)
+TDD mandatory: Tests written → User approved → Tests fail → Then implement. Red-Green-Refactor cycle strictly enforced for all code changes.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Cloud-Native Parity
+Maintain identical environments from local development (Minikube) to potential production. Containerization and orchestration artifacts must work consistently across all deployment targets.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Observability & Control
+Implement comprehensive monitoring and logging from the initial implementation. All services must expose health checks and metrics endpoints. Security scanning is mandatory for all deployments.
 
-### [PRINCIPLE_6_NAME]
+### VI. Minimalist Architecture
+Start simple and evolve iteratively. Prefer proven solutions over complex architectures. YAGNI (You Aren't Gonna Need It) principle applies to features and infrastructure.
 
+## Additional Constraints
 
-[PRINCIPLE__DESCRIPTION]
+### Security Requirements
+- All container images must be scanned for vulnerabilities before deployment
+- Secrets must be encrypted at rest and in transit
+- Network policies must restrict traffic between services by default
+- Authentication and authorization must be implemented at service boundaries
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### Performance Standards
+- Applications must respond within 500ms for 95% of requests
+- Resource utilization should not exceed 80% under normal load
+- Horizontal scaling thresholds must be defined and tested
+- Database connection pools limited to 20 connections per service
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Technology Stack Requirements
+- Kubernetes v1.25+ for all orchestration
+- Docker images compatible with containerd or cri-o
+- Multi-architecture support (amd64, arm64) preferred
+- Helm v3+ for package management
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Code Review Process
+- All changes require peer review before merging
+- Automated tests must pass before review consideration
+- Changes to specifications require broader team approval
+- Security scans must pass before deployment
+
+### Quality Gates
+- Static code analysis passes
+- Unit and integration tests achieve 80%+ coverage
+- Performance benchmarks met
+- Security vulnerabilities addressed
+
+### Deployment Policy
+- Zero-downtime deployments required
+- Rollback strategy defined for each release
+- Blue-green or canary deployment patterns for production
+- Immutable infrastructure principle (deployments create new resources rather than modifying existing)
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Constitution supersedes all other practices and development patterns. Amendments require explicit documentation, approval from project leads, and migration plan for existing code. All pull requests and reviews must verify constitutional compliance. Complexity must be justified with clear benefits outweighing maintenance overhead.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-02-08 | **Last Amended**: 2026-02-08

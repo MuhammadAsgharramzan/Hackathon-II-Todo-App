@@ -1,53 +1,60 @@
 # Default values for todo-app.
-
-imagePullPolicy: IfNotPresent
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
 backend:
-  replicaCount: 1
-  image:
+  image: 
     repository: todo-backend
     tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
   service:
     type: ClusterIP
     port: 8000
   resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
     requests:
-      cpu: 100m
       memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+  livenessProbe:
+    path: /health
+    initialDelaySeconds: 15
+    periodSeconds: 20
+  readinessProbe:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 5
 
 frontend:
-  replicaCount: 1
   image:
     repository: todo-frontend
     tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
   service:
-    type: NodePort
+    type: ClusterIP
     port: 3000
-    nodePort: 30080
-  resources: # Simplified for local minikube
-    limits:
-      cpu: 500m
-      memory: 512Mi
+  resources:
     requests:
-      cpu: 100m
       memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
 
 postgres:
+  enabled: true
   image:
     repository: postgres
     tag: 15-alpine
   storage:
     size: 1Gi
-  credentials:
+  env:
     user: todo_user
-    password: todo_password
     db: todo_db
 
-jwt:
-  secret: "super-secret-key-change-in-production"
-
-global:
-  environment: production
+config:
+  nodeEnv: production
+  # jwtSecret and geminiKey should be provided via secrets or --set commands

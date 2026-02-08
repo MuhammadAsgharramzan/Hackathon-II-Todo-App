@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X GET http://localhost:3001/api/tasks -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYjU5M2NiYS0xMmIzLTRmN2YtOTU2OC0wNjhhYjgxNDg4NjciLCJleHAiOjE3NzAyMzE3OTUsImlhdCI6MTc3MDIyOTk5NX0.8DknV53ZIkfxf1SRWs872uNrzoeHLemhF82oU-oJNqY\")",
+      "Bash(uvicorn main:app --host 0.0.0.0 --port 8000:*)"
+    ]
+  }
+}

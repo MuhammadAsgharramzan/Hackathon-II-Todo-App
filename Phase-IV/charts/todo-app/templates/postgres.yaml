@@ -1,9 +1,10 @@
+{{- if .Values.postgres.enabled -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "todo-app.fullname" . }}-postgres-pvc
+  name: postgres-pvc
   labels:
-    app: {{ include "todo-app.fullname" . }}-postgres
+    app: postgres
 spec:
   accessModes:
     - ReadWriteOnce
@@ -14,18 +15,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "todo-app.fullname" . }}-postgres
+  name: postgres
   labels:
-    app: {{ include "todo-app.fullname" . }}-postgres
+    app: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "todo-app.fullname" . }}-postgres
+      app: postgres
   template:
     metadata:
       labels:
-        app: {{ include "todo-app.fullname" . }}-postgres
+        app: postgres
     spec:
       containers:
       - name: postgres
@@ -34,25 +35,26 @@ spec:
         - containerPort: 5432
         envFrom:
         - secretRef:
-            name: {{ include "todo-app.fullname" . }}-secrets
+            name: todo-secrets
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:
-          claimName: {{ include "todo-app.fullname" . }}-postgres-pvc
+          claimName: postgres-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "todo-app.fullname" . }}-postgres
+  name: postgres
   labels:
-    app: {{ include "todo-app.fullname" . }}-postgres
+    app: postgres
 spec:
   type: ClusterIP
   selector:
-    app: {{ include "todo-app.fullname" . }}-postgres
+    app: postgres
   ports:
   - port: 5432
     targetPort: 5432
+{{- end -}}

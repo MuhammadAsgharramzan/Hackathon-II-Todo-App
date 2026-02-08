@@ -1,27 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "todo-app.fullname" . }}-frontend
+  name: todo-frontend
   labels:
-    app: {{ include "todo-app.fullname" . }}-frontend
+    app: todo-frontend
 spec:
   replicas: {{ .Values.frontend.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "todo-app.fullname" . }}-frontend
+      app: todo-frontend
   template:
     metadata:
       labels:
-        app: {{ include "todo-app.fullname" . }}-frontend
+        app: todo-frontend
     spec:
       containers:
-      - name: frontend
+      - name: todo-frontend
         image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
-        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
         ports:
-        - containerPort: 3000
+        - containerPort: {{ .Values.frontend.service.port }}
         envFrom:
         - configMapRef:
-            name: {{ include "todo-app.fullname" . }}-config
+            name: todo-config
         resources:
-          {{- toYaml .Values.frontend.resources | nindent 10 }}
+          requests:
+            memory: {{ .Values.frontend.resources.requests.memory }}
+            cpu: {{ .Values.frontend.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.frontend.resources.limits.memory }}
+            cpu: {{ .Values.frontend.resources.limits.cpu }}
