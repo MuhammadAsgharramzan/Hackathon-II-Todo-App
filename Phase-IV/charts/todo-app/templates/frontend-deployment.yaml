@@ -20,9 +20,12 @@ spec:
         imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.frontend.service.port }}
+        env:
+        - name: PORT
+          value: "3000"
         envFrom:
         - configMapRef:
-            name: todo-config
+            name: {{ .Release.Name }}-config
         resources:
           requests:
             memory: {{ .Values.frontend.resources.requests.memory }}

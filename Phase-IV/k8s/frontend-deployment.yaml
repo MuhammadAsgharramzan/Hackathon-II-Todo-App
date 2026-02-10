@@ -5,7 +5,7 @@ metadata:
   labels:
     app: todo-frontend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: todo-frontend
@@ -20,6 +20,9 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
         envFrom:
         - configMapRef:
             name: todo-config
@@ -30,3 +33,19 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
