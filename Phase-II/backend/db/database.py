@@ -10,8 +10,8 @@ from models.conversation_model import Conversation, Message  # Import conversati
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todo_app.db")
 
-# Create engine with SQLite thread-safe settings
-engine = create_engine(DATABASE_URL, echo=True, connect_args={"check_same_thread": False})
+connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+engine = create_engine(DATABASE_URL, echo=True, connect_args=connect_args)
 
 
 def create_db_and_tables():

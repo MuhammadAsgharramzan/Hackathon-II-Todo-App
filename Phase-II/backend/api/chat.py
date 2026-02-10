@@ -8,7 +8,7 @@ from db.database import get_session
 from models.conversation_model import Conversation, Message, MessageCreate, RoleEnum
 from models.task_model import Task
 from auth.jwt_dependency import get_current_user, User
-from agents.todo_agent import TodoAgent
+from service_agents.todo_agent import TodoAgent
 
 # Configure logging for audit trails
 logging.basicConfig(level=logging.INFO)

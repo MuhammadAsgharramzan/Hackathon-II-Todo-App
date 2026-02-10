@@ -9,3 +9,76 @@ node_modules/
 .idea/
 *.log
 .next/
+
+# Dependency directories
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE additional
+*.swp
+*.swo
+
+# OS additional
+Thumbs.db
+
+# Logs additional
+logs/
+
+# Secrets
+secrets/
+*.key
+*.pem
+*.crt
+*.cert
+
+# Docker
+.dockerignore
+
+# Local configuration
+config/local.yml
+*.local
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+
+# Documentation
+docs/_build/
+
+# Coverage reports
+.coverage
+htmlcov/
+.tox/
+
+# SDD specific
+.claude/context.md
+.specify/memory/temp/
+
+# Phase-specific ignores
+Phase-II/backend/__pycache__/
+Phase-II/frontend/node_modules/
+Phase-II/frontend/.next/
+Phase-III/__pycache__/
+Phase-IV/__pycache__/

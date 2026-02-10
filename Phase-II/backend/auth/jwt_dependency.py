@@ -8,13 +8,16 @@ import logging
 import json
 import base64
 
+# Import centralized configuration
+from config import JWT_SECRET_KEY, JWT_ALGORITHM
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Use the same secret key as in auth_utils
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", secrets.token_urlsafe(32))
-ALGORITHM = "HS256"
+# Use centralized configuration
+SECRET_KEY = JWT_SECRET_KEY
+ALGORITHM = JWT_ALGORITHM
 
 class User:
     """Simple User class to hold user information"""

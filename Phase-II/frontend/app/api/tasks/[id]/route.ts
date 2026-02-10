@@ -11,8 +11,8 @@ export async function GET(
 
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-    const authHeader = headers().get('authorization');
-const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const taskId = params.id;
 
     const response = await fetch(`${backendUrl}/tasks/${taskId}`, {
@@ -36,7 +36,7 @@ export async function PUT(
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = headers().get('authorization');
-const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const taskId = params.id;
     const body = await request.json();
 
@@ -63,7 +63,7 @@ export async function DELETE(
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = headers().get('authorization');
-const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const taskId = params.id;
 
     const response = await fetch(`${backendUrl}/tasks/${taskId}`, {
@@ -87,7 +87,7 @@ export async function PATCH(
   try {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = headers().get('authorization');
-const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const taskId = params.id;
 
     const response = await fetch(`${backendUrl}/tasks/${taskId}/toggle-complete`, {
