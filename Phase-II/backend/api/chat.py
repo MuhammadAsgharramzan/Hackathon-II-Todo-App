@@ -83,7 +83,7 @@ async def chat_endpoint(
     logger.info(f"Saved user message to conversation {conversation_id}")
 
     # Process the message with AI agent
-    assistant_response, tool_calls = todo_agent.process_message(
+    assistant_response, tool_calls = await todo_agent.process_message(
         current_user.id,
         user_message,
         session

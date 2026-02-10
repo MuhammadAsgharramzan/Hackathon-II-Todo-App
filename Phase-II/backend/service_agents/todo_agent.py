@@ -52,11 +52,11 @@ class TodoAgent:
         )
         
         self.model = OpenAIChatCompletionsModel(
-            model="gemini-2.0-flash-exp", # Or 1.5-flash as per user snippet
+            model="gemini-3-flash-preview", # Using Gemini 3 Flash for OpenAI-compatible endpoint
             openai_client=self.client
         )
 
-    def process_message(self, user_id: str, message: str, session: Session) -> tuple[str, List[Dict[str, Any]]]:
+    async def process_message(self, user_id: str, message: str, session: Session) -> tuple[str, List[Dict[str, Any]]]:
         """
         Process a user message and return AI response and tool calls
         """
@@ -144,9 +144,9 @@ class TodoAgent:
         )
 
         try:
-            # Run the agent synchronously
+            # Run the agent asynchronously
             # The SDK Runner handles the loop of reasoning -> tool call -> response
-            result = Runner.run_sync(agent, message)
+            result = await Runner.run(agent, message)
             
             # The result object contains the final response
             final_response = str(result.final_output)
