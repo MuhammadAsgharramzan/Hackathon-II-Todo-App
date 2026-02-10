@@ -193,7 +193,7 @@ class TodoAgent:
         # Simple keyword-based inference
         if any(word in message_lower for word in ["add", "create", "remember", "make", "new"]):
             # Try to extract a potential task title
-            import re
+            # Try to extract a potential task title
             # Remove common starting words
             cleaned_message = re.sub(r'^(?:can you |could you |please |pls |add |create |remember |make |i need to |i want to |let me )+', '', message_lower)
             title = cleaned_message.strip()
@@ -310,6 +310,51 @@ class TodoAgent:
                 except Exception as e:
                     logger.error(f"Error in keyword-based delete_task for user {user_id}: {str(e)}")
                     return f"❌ Error: Failed to delete task: {str(e)}", tool_calls
+            
+            # If no ID found, try to find task by title to delete
+            else:
+                try:
+                     # Remove "delete", "remove", etc. to get the title
+                    
+                    # Remove common starting words
+                    cleaned_message = re.sub(r'^(?:can you |could you |please |pls |delete |remove |erase |trash |discard |cancel |task |todo |item )+', '', message_lower).strip()
+                    # Remove quotes if present
+                    title_to_delete = cleaned_message.strip().strip("'").strip('"')
+                    
+                    if title_to_delete:
+                        # List all tasks to find the one with matching title
+                        if session:
+                            tasks = TaskTools.list_tasks(user_id=user_id, status="all", session=session)
+                        else:
+                            tasks = TaskTools.list_tasks(user_id=user_id, status="all")
+                            
+                        # Find task with matching title (case-insensitive)
+                        task_to_delete = next((t for t in tasks if t['title'].lower() == title_to_delete.lower()), None)
+                        
+                        if task_to_delete:
+                            # Found it, now delete by ID
+                            task_id = task_to_delete['id']
+                            
+                            if session:
+                                result = TaskTools.delete_task(user_id=user_id, task_id=task_id, session=session)
+                            else:
+                                result = TaskTools.delete_task(user_id=user_id, task_id=task_id)
+                                
+                            if result and isinstance(result, dict) and "error" in result:
+                                return f"❌ Error: {result['error']}", tool_calls
+                            elif result:
+                                tool_calls.append({
+                                    "tool_name": "delete_task",
+                                    "arguments": {"user_id": user_id, "task_id": task_id},
+                                    "result": result
+                                })
+                                return f"🗑️ Task '{result['title']}' has been deleted successfully.", tool_calls
+                        else:
+                            return f"❌ I couldn't find a task with the title '{title_to_delete}'.", tool_calls
+                            
+                except Exception as e:
+                    logger.error(f"Error in keyword-based delete_task by title for user {user_id}: {str(e)}")
+                    return f"❌ Error: Failed to process deletion request: {str(e)}", tool_calls
 
         return "", []  # No action taken
 

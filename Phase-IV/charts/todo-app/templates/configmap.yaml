@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-config
+data:
+  DATABASE_URL: "postgresql://{{ .Values.postgres.env.user }}:{{ .Values.postgres.env.db }}@postgres:5432/{{ .Values.postgres.env.db }}"
+  PORT: "{{ .Values.backend.service.port }}"
+  NODE_ENV: "{{ .Values.config.nodeEnv }}"
+  BACKEND_URL: "http://todo-backend:{{ .Values.backend.service.port }}"
+  NEXT_PUBLIC_API_BASE_URL: "http://localhost:{{ .Values.backend.service.port }}"

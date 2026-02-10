@@ -47,7 +47,12 @@ export default function TasksPage() {
     if (!token) {
       router.push('/login');
     } else {
-      fetchTasks();
+      // Add a small delay to ensure token is properly set before making API calls
+      const timer = setTimeout(() => {
+        fetchTasks();
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, []); // Only run once on mount to prevent infinite redirects
 
@@ -218,7 +223,10 @@ export default function TasksPage() {
 
           {/* Right column - AI Chat Interface */}
           <div>
-            <ChatInterface userId={extractUserIdFromToken() || 'default_user'} />
+            <ChatInterface
+              userId={extractUserIdFromToken() || 'default_user'}
+              onTaskUpdate={fetchTasks}
+            />
           </div>
         </div>
       </div>

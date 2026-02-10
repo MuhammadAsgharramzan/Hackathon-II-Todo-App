@@ -3,7 +3,7 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
-  output: undefined, // Don't set to "export" to maintain API route functionality
+  output: "standalone", // Enabled for Docker optimization
   trailingSlash: undefined, // Let Next.js handle this automatically
   images: {
     unoptimized: true, // For compatibility with static exports if needed

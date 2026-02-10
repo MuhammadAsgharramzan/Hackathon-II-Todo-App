@@ -25,9 +25,10 @@ interface ChatResponse {
 
 interface ChatProps {
   userId: string;
+  onTaskUpdate?: () => void;
 }
 
-export default function ChatInterface({ userId }: ChatProps) {
+export default function ChatInterface({ userId, onTaskUpdate }: ChatProps) {
   const router = useRouter();
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -86,6 +87,11 @@ export default function ChatInterface({ userId }: ChatProps) {
 
       // Visualize tool calls in the chat interface
       if (response.tool_calls && response.tool_calls.length > 0) {
+        // Trigger parent component update if tasks were modified
+        if (onTaskUpdate) {
+          onTaskUpdate();
+        }
+
         // Add a subtle indicator that tools were executed
         const toolIndicator: Message = {
           role: 'assistant',
@@ -107,14 +113,15 @@ export default function ChatInterface({ userId }: ChatProps) {
       } else {
         console.error('Error sending message:', error);
 
-      // Add error message to chat
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: '❌ Sorry, I encountered an error processing your request. Please try again.',
-        createdAt: new Date().toISOString(),
-      };
+        // Add error message to chat
+        const errorMessage: Message = {
+          role: 'assistant',
+          content: '❌ Sorry, I encountered an error processing your request. Please try again.',
+          createdAt: new Date().toISOString(),
+        };
 
-      setMessages(prev => [...prev, errorMessage]);
+        setMessages(prev => [...prev, errorMessage]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -140,28 +147,26 @@ export default function ChatInterface({ userId }: ChatProps) {
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                  msg.role === 'user'
-                    ? 'bg-indigo-600 text-white'
-                    : msg.content.startsWith('❌')
-                      ? 'bg-red-100 text-red-800'
-                      : msg.content.startsWith('🔧')
-                        ? 'bg-blue-100 text-blue-800 italic'
-                        : 'bg-gray-100 text-gray-800'
-                }`}
+                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${msg.role === 'user'
+                  ? 'bg-indigo-600 text-white'
+                  : msg.content.startsWith('❌')
+                    ? 'bg-red-100 text-red-800'
+                    : msg.content.startsWith('🔧')
+                      ? 'bg-blue-100 text-blue-800 italic'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
               >
                 <div className="whitespace-pre-wrap">{msg.content}</div>
                 {msg.createdAt && (
                   <div
-                    className={`text-xs mt-1 ${
-                      msg.role === 'user'
-                        ? 'text-indigo-200'
-                        : msg.content.startsWith('❌')
-                          ? 'text-red-500'
-                          : msg.content.startsWith('🔧')
-                            ? 'text-blue-500'
-                            : 'text-gray-500'
-                    }`}
+                    className={`text-xs mt-1 ${msg.role === 'user'
+                      ? 'text-indigo-200'
+                      : msg.content.startsWith('❌')
+                        ? 'text-red-500'
+                        : msg.content.startsWith('🔧')
+                          ? 'text-blue-500'
+                          : 'text-gray-500'
+                      }`}
                   >
                     {new Date(msg.createdAt).toLocaleTimeString([], {
                       hour: '2-digit',
