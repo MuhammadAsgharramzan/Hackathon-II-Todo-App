@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // Proxy for tasks API
 export async function GET(request: NextRequest) {
   try {
-    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    // Use NEXT_PUBLIC_API_BASE_URL only (BACKEND_URL is for Docker, not Vercel)
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = request.headers.get('authorization');
 const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
@@ -23,7 +24,8 @@ const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substr
 
 export async function POST(request: NextRequest) {
   try {
-    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    // Use NEXT_PUBLIC_API_BASE_URL only (BACKEND_URL is for Docker, not Vercel)
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     const authHeader = request.headers.get('authorization');
 const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const body = await request.json();
