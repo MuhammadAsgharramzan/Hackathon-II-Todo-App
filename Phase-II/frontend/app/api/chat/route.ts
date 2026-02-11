@@ -8,7 +8,10 @@ export async function POST(request: NextRequest) {
     const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
     const body = await request.json();
 
-    // Forward the chat request to the backend
+    console.log('Backend URL:', backendUrl); // Debug log
+    console.log('Chat request body:', body); // Debug log
+
+    // Forward the chat request to the backend with longer timeout
     const response = await fetch(`${backendUrl}/chat/`, {
       method: 'POST',
       headers: {
@@ -18,14 +21,19 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
+    console.log('Backend response status:', response.status); // Debug log
+
     if (!response.ok) {
       const errorData = await response.text();
+      console.error('Backend error:', errorData); // Debug log
       return NextResponse.json({ error: errorData }, { status: response.status });
     }
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    return NextResponse.json({ error: 'Chat request failed' }, { status: 500 });
+    console.error('Chat error:', error); // Debug log
+    const errorMessage = error instanceof Error ? error.message : 'Chat request failed';
+    return NextResponse.json({ error: errorMessage, details: String(error) }, { status: 500 });
   }
 }
