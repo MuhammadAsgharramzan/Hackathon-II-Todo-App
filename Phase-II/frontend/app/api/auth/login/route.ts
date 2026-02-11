@@ -6,6 +6,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password } = body;
 
+    console.log('Backend URL:', backendUrl); // Debug log
+    console.log('Attempting login for:', email); // Debug log
+
     // Forward the login request to the backend
     const response = await fetch(`${backendUrl}/auth/login`, {
       method: 'POST',
@@ -15,14 +18,19 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ email, password }),
     });
 
+    console.log('Backend response status:', response.status); // Debug log
+
     if (!response.ok) {
       const errorData = await response.text();
-      return NextResponse.json({ error: errorData }, { status: response.status });
+      console.error('Backend error:', errorData); // Debug log
+      return NextResponse.json({ error: errorData || 'Login failed' }, { status: response.status });
     }
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
+    console.error('Login error:', error); // Debug log
+    const errorMessage = error instanceof Error ? error.message : 'Login failed';
+    return NextResponse.json({ error: errorMessage, details: String(error) }, { status: 500 });
   }
 }
